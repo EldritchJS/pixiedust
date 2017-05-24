@@ -454,6 +454,13 @@ class PixiedustInstall(InstallKernelSpec):
             print('Unable to find py4j in SPARK_HOME: {0}'.format(self.spark_home))
             self.exit(1)
 
+        try:
+            self.sparkCloudantPath
+        except NameError:
+            scPath = ""
+        else:
+            scPath = "--jars " + self.sparkCloudantPath
+
         overrides={
             "display_name": self.kernelName,
             "argv": [
@@ -469,8 +476,8 @@ class PixiedustInstall(InstallKernelSpec):
                 "SPARK_HOME": "{0}".format(self.spark_home),
                 "PYTHONPATH": "{0}/python/:{0}/python/lib/{1}".format(self.spark_home, py4j_zip),
                 "PYTHONSTARTUP": "{0}/python/pyspark/shell.py".format(self.spark_home),
-                "PYSPARK_SUBMIT_ARGS": "--jars {0} --driver-class-path {1} --master local[10] pyspark-shell".format(
-                    self.sparkCloudantPath,
+                "PYSPARK_SUBMIT_ARGS": "{0} --driver-class-path {1} --master local[10] pyspark-shell".format(
+                    scPath,
                     ":".join([x for x in [self.pixiedust_home + "/data/libs/*" ,self.sparkCSVPath,self.commonsCSVPath] if x is not None]),
                 ),
                 "SPARK_DRIVER_MEMORY":"10G",
